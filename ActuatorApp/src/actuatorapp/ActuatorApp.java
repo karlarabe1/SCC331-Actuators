@@ -22,17 +22,19 @@ import org.json.JSONObject;
 public class ActuatorApp {
     //Needs to take in secret as argument
     public ActuatorApp()throws IOException, JSONException{
-        
-        //BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
-        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
-        String json = reader.readLine();
-        JSONObject type = new JSONObject(json);
-        commandFromApi(type);
         //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
         //Actuator a = new Actuator("RELAYLO1-12854.relay1");    
         //Starts the virtualhub that is needed to connect to the actuators
         Process process = new ProcessBuilder("src\\actuatorapp\\VirtualHub.exe").start();
-        Socket api = new Socket("10.42.72.25",8081);
+        
+        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
+        //BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
+        String json = reader.readLine();
+        JSONObject type = new JSONObject(json);
+        commandFromApi(type);
+        
+        
+        Socket api = new Socket("10.42.72.25",8082);
         OutputStreamWriter osw = new OutputStreamWriter(api.getOutputStream(),StandardCharsets.UTF_8);
         InputStreamReader isr = new InputStreamReader(api.getInputStream(), StandardCharsets.UTF_8);
         
@@ -70,7 +72,7 @@ public class ActuatorApp {
         {
             try
             {
-                Socket api = new Socket("10.42.72.25",8081);
+                Socket api = new Socket("10.42.72.25",8082);
                 BufferedReader br = new BufferedReader(new InputStreamReader(api.getInputStream()));
                 while(true)
                 {    
