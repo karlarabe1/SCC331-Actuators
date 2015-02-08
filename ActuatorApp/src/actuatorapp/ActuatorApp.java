@@ -6,10 +6,10 @@
 package actuatorapp;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONException;
@@ -22,11 +22,16 @@ import org.json.JSONObject;
 public class ActuatorApp {
     //Needs to take in secret as argument
     public ActuatorApp()throws IOException, JSONException{
+        
+        //BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
+        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
+        String json = reader.readLine();
+        JSONObject type = new JSONObject(json);
+        commandFromApi(type);
         //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
         //Actuator a = new Actuator("RELAYLO1-12854.relay1");    
         //Starts the virtualhub that is needed to connect to the actuators
         Process process = new ProcessBuilder("src\\actuatorapp\\VirtualHub.exe").start();
-        //Port 8082 is for actuator commands while 8081 is for base station
         Socket api = new Socket("10.42.72.25",8081);
         OutputStreamWriter osw = new OutputStreamWriter(api.getOutputStream(),StandardCharsets.UTF_8);
         InputStreamReader isr = new InputStreamReader(api.getInputStream(), StandardCharsets.UTF_8);
@@ -43,7 +48,6 @@ public class ActuatorApp {
         BufferedReader br = new BufferedReader(isr);
         JSONObject response = new JSONObject(br.readLine());
         System.out.println(response.toString());
-        
         if(!response.getBoolean("success"))
         {
             System.err.println("Invalid API secret");
@@ -90,9 +94,11 @@ public class ActuatorApp {
             if(type.equals("control") == true)
             {
                 String yoct_addr = (String) command.get("yoct_addr");
-                String state = (String) command.get("value");
-                //state is a command for on or off
-                if(state.equals("on"))
+                String value = (String) command.get("value");
+                //instruction: s for update, a for add, r for remove
+                //sensor: b for battery, l for light, m for motion, t for temperature
+                //value is the trigger being set
+                if(value.equals("on"))
                 {
                     ActuatorOn(yoct_addr);
                 }
