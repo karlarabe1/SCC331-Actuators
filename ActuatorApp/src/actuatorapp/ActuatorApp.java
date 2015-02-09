@@ -101,17 +101,21 @@ public class ActuatorApp {
                 //value is the trigger being set
                 String load = (String) command.get("payload");
                 JSONObject payload = new JSONObject(load);
-                String value = (String) payload.get("value");
-                //Boolean value = (Boolean) payload.getBoolean("value");
+                //String value = (String) payload.get("value");
+                Boolean value = (Boolean) payload.getBoolean("value");
                 
-                //if(value == true)
-                if(value.equals("true"))
+                if(value == true)
+                //if(value.equals("true"))
                 {
                     ActuatorOn(yoct_addr);
                 }
-                else
+                else if (value == false)
                 {
                     ActuatorOff(yoct_addr);
+                }
+                else
+                {
+                    System.out.println("Wrong value for payload recieved");
                 }
             }
             else
