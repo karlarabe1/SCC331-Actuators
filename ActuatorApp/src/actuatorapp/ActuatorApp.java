@@ -96,11 +96,16 @@ public class ActuatorApp {
             if(type.equals("control") == true)
             {
                 String yoct_addr = (String) command.get("yoct_addr");
-                String value = (String) command.get("value");
                 //instruction: s for update, a for add, r for remove
                 //sensor: b for battery, l for light, m for motion, t for temperature
                 //value is the trigger being set
-                if(value.equals("on"))
+                String load = (String) command.get("payload");
+                JSONObject payload = new JSONObject(load);
+                String value = (String) payload.get("value");
+                //Boolean value = (Boolean) payload.getBoolean("value");
+                
+                //if(value == true)
+                if(value.equals("true"))
                 {
                     ActuatorOn(yoct_addr);
                 }
