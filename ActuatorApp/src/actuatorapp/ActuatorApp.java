@@ -27,11 +27,13 @@ public class ActuatorApp {
         //Starts the virtualhub that is needed to connect to the actuators
         Process process = new ProcessBuilder("src\\actuatorapp\\VirtualHub.exe").start();
         
+        /* Tests collecting string as JSON
         BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
-        //BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
+        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
         String json = reader.readLine();
         JSONObject type = new JSONObject(json);
         commandFromApi(type);
+        */
         
         
         Socket api = new Socket("10.42.72.25",8082);
@@ -95,7 +97,7 @@ public class ActuatorApp {
             String type = (String) command.get("type");
             if(type.equals("control") == true)
             {
-                String yoct_addr = (String) command.get("yoct_addr");
+                String yocto_addr = (String) command.get("yocto_addr");
                 //instruction: s for update, a for add, r for remove
                 //sensor: b for battery, l for light, m for motion, t for temperature
                 //value is the trigger being set
@@ -107,11 +109,11 @@ public class ActuatorApp {
                 if(value == true)
                 //if(value.equals("true"))
                 {
-                    ActuatorOn(yoct_addr);
+                    ActuatorOn(yocto_addr);
                 }
                 else if (value == false)
                 {
-                    ActuatorOff(yoct_addr);
+                    ActuatorOff(yocto_addr);
                 }
                 else
                 {
@@ -130,10 +132,10 @@ public class ActuatorApp {
         
     }
     
-    private void ActuatorOn(String yoct_addr)
+    private void ActuatorOn(String yocto_addr)
     {
         //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
-        Actuator a = new Actuator("RELAYLO1-" + yoct_addr + ".relay1");
+        Actuator a = new Actuator("RELAYLO1-" + yocto_addr + ".relay1");
         if (a.isOn() == true)
         {
             System.out.println("Actuator is already on");
@@ -144,10 +146,10 @@ public class ActuatorApp {
         }
     }
     
-    private void ActuatorOff(String yoct_addr)
+    private void ActuatorOff(String yocto_addr)
     {
         //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
-        Actuator a = new Actuator("RELAYLO1-" + yoct_addr + ".relay1");
+        Actuator a = new Actuator("RELAYLO1-" + yocto_addr + ".relay1");
         if (a.isOn() == false)
         {
             System.out.println("Actuator is already off");
