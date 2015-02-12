@@ -45,6 +45,12 @@ public class Actuator
         try 
         {
             relay1.setState(1);
+            int state = relay1.getState();
+            if (state != 1)
+            {
+                System.out.println("Failed to turn actuator on");
+                turnActuatorON();
+            }
         }
         catch(YAPI_Exception e) 
         {
@@ -58,6 +64,12 @@ public class Actuator
         try 
         {
             relay1.setState(0);
+            int state = relay1.getState();
+            if (state != 0)
+            {
+                System.out.println("Failed to turn actuator off");
+                turnActuatorON();
+            }
         }
         catch(YAPI_Exception e) 
         {

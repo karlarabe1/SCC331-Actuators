@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,22 +22,48 @@ import org.json.JSONObject;
  */
 public class ActuatorApp {
     //Needs to take in secret as argument
+    private Socket api;
+    
+    private HashMap<String, Actuator> actuators = new HashMap<>();
+    
     public ActuatorApp()throws IOException, JSONException{
         //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
         //Actuator a = new Actuator("RELAYLO1-12854.relay1");    
         //Starts the virtualhub that is needed to connect to the actuators
         Process process = new ProcessBuilder("src\\actuatorapp\\VirtualHub.exe").start();
+        //{"yocto_addr":"10FAD","payload":{"value":true},"type":"control"}
         
-        /* Tests collecting string as JSON
-        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
-        BufferedReader reader = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
-        String json = reader.readLine();
-        JSONObject type = new JSONObject(json);
-        commandFromApi(type);
+        /*
+        BufferedReader on = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
+        BufferedReader off = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
+        String jon = on.readLine();
+        String joff = off.readLine();
+        System.out.println(jon);
+        System.out.println(joff);
+        JSONObject joon = new JSONObject(jon);
+        JSONObject jooff = new JSONObject(joff);
+
+        try
+        {
+            while(true)
+            {
+                commandFromApi(joon);
+                Thread.sleep(1000);
+                commandFromApi(jooff);
+                Thread.sleep(1000);
+            }
+        }
+        catch(Exception e)
+        {
+            
+        }
         */
         
         
-        Socket api = new Socket("10.42.72.25",8082);
+
+        
+        
+        api = new Socket("10.42.72.25",8082);
         OutputStreamWriter osw = new OutputStreamWriter(api.getOutputStream(),StandardCharsets.UTF_8);
         InputStreamReader isr = new InputStreamReader(api.getInputStream(), StandardCharsets.UTF_8);
         
@@ -58,7 +85,22 @@ public class ActuatorApp {
             System.exit(1);
         }
         
-        new Thread(new listenToApi()).start();    
+        try
+        {
+            while(true)
+            {    
+                System.out.println("Waiting for command...");
+                String message = br.readLine();
+                System.out.println(message);
+                JSONObject type = new JSONObject(message);
+                commandFromApi(type);
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error listening to api");
+        } 
+        
     }
     
     /**
@@ -68,27 +110,6 @@ public class ActuatorApp {
        ActuatorApp App = new ActuatorApp();
     }
     
-    private class listenToApi implements Runnable
-    {
-        public void run()
-        {
-            try
-            {
-                Socket api = new Socket("10.42.72.25",8082);
-                BufferedReader br = new BufferedReader(new InputStreamReader(api.getInputStream()));
-                while(true)
-                {    
-                    String message = br.readLine();
-                    JSONObject type = new JSONObject(message);
-                    commandFromApi(type);
-                }
-            }
-            catch(Exception e)
-            {
-                System.out.println("Error listening to api");
-            } 
-        }    
-    }
     
     public void commandFromApi(JSONObject command) throws JSONException{
         //Takes the command and processes it
@@ -97,28 +118,12 @@ public class ActuatorApp {
             String type = (String) command.get("type");
             if(type.equals("control") == true)
             {
+                System.out.println(command);
                 String yocto_addr = (String) command.get("yocto_addr");
-                //instruction: s for update, a for add, r for remove
-                //sensor: b for battery, l for light, m for motion, t for temperature
-                //value is the trigger being set
-                String load = (String) command.get("payload");
-                JSONObject payload = new JSONObject(load);
-                //String value = (String) payload.get("value");
-                Boolean value = (Boolean) payload.getBoolean("value");
+                JSONObject payload = command.getJSONObject("payload");
+                boolean value = (Boolean) payload.getBoolean("value");
                 
-                if(value == true)
-                //if(value.equals("true"))
-                {
-                    ActuatorOn(yocto_addr);
-                }
-                else if (value == false)
-                {
-                    ActuatorOff(yocto_addr);
-                }
-                else
-                {
-                    System.out.println("Wrong value for payload recieved");
-                }
+                setActuatorState(yocto_addr, value);
             }
             else
             {
@@ -131,32 +136,29 @@ public class ActuatorApp {
         } 
         
     }
-    
-    private void ActuatorOn(String yocto_addr)
-    {
-        //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
-        Actuator a = new Actuator("RELAYLO1-" + yocto_addr + ".relay1");
-        if (a.isOn() == true)
-        {
-            System.out.println("Actuator is already on");
+
+    private void setActuatorState(String yocto_addr, boolean value) {
+        Actuator a = actuators.get(yocto_addr);
+        if (a == null) {
+            a = new Actuator("RELAYLO1-" + yocto_addr + ".relay1");
+            actuators.put(yocto_addr, a);
+            System.out.println("Created actuator");
         }
-        else
-        {
-            a.turnActuatorON();
+        else {
+            System.out.println("Retrieved actuator");
         }
-    }
-    
-    private void ActuatorOff(String yocto_addr)
-    {
-        //Takes a sting with a relay name "RELAYLO1-10FAD.relay1"
-        Actuator a = new Actuator("RELAYLO1-" + yocto_addr + ".relay1");
-        if (a.isOn() == false)
-        {
-            System.out.println("Actuator is already off");
+        
+        if (value) {
+             System.out.println("Turning on");
+             // KARL need two function to work
+             //a.turnActuatorON();
+             a.turnActuatorON();
         }
-        else
-        {
-            a.turnActuatorOFF();
+        else {
+             System.out.println("Turning off");
+             //KARL need two function to work
+             //a.turnActuatorOFF();
+             a.turnActuatorOFF();
         }
     }
 }

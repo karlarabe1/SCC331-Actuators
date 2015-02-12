@@ -1,1 +1,1 @@
-{"type":"control", "yoct_addr":"12854", "payload":"{'value':false}"}
+{"yocto_addr":"10FAD","payload":{"value":false},"type":"control"}
