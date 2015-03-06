@@ -58,11 +58,10 @@ public class ActuatorApp {
         try
         {
             while(true)
-            {    
-                System.out.println("Waiting for command...");
-                String message = br.readLine();
-                System.out.println(message);
-                JSONObject type = new JSONObject(message);
+            {
+                //JSON object will contain message from the server
+                JSONObject type = getCommand(br);
+                //Forward the command to be processed (will find out which actuators to turn on/off)
                 commandFromApi(type);
             }
         }
@@ -78,6 +77,26 @@ public class ActuatorApp {
      */
     public static void main(String[] args) throws IOException, JSONException{
        ActuatorApp App = new ActuatorApp();
+    }
+    
+    public JSONObject getCommand(BufferedReader br)
+    {
+        JSONObject type = new JSONObject();
+        try
+        {
+            System.out.println("Waiting for command...");
+            //Waits for a message to be sent and reads that message as a string
+            String message = br.readLine();
+            System.out.println(message);
+            //Converts the message into a JSONObject
+            type = new JSONObject(message);
+            return type;
+        }
+        catch(Exception e)
+        {
+            System.err.println("Error listening to api: " + e);
+        }
+        return type;
     }
     
     
@@ -120,14 +139,10 @@ public class ActuatorApp {
         
         if (value) {
              System.out.println("Turning on");
-             // KARL need two function to work
-             //a.turnActuatorON();
              a.turnActuatorON();
         }
         else {
              System.out.println("Turning off");
-             //KARL need two function to work
-             //a.turnActuatorOFF();
              a.turnActuatorOFF();
         }
     }
