@@ -79,7 +79,7 @@ public class Actuator
     
     public boolean isOn()
     {
-        //gets the current status of the actuator either on or off
+        //Gets the current status of the actuator, either on or off
         try 
         {
             if(relay1.getState() == 1)
@@ -93,7 +93,7 @@ public class Actuator
         }
         catch(YAPI_Exception e) 
         {
-            System.out.println("Cant get State");
+            System.err.println("Cant get State: " + e);
         }
         return false;
     }

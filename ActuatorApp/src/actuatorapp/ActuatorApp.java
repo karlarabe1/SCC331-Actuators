@@ -33,36 +33,6 @@ public class ActuatorApp {
         Process process = new ProcessBuilder("src\\actuatorapp\\VirtualHub.exe").start();
         //{"yocto_addr":"10FAD","payload":{"value":true},"type":"control"}
         
-        /*
-        BufferedReader on = new BufferedReader( new FileReader ("src\\actuatorapp\\on.txt"));
-        BufferedReader off = new BufferedReader( new FileReader ("src\\actuatorapp\\off.txt"));
-        String jon = on.readLine();
-        String joff = off.readLine();
-        System.out.println(jon);
-        System.out.println(joff);
-        JSONObject joon = new JSONObject(jon);
-        JSONObject jooff = new JSONObject(joff);
-
-        try
-        {
-            while(true)
-            {
-                commandFromApi(joon);
-                Thread.sleep(1000);
-                commandFromApi(jooff);
-                Thread.sleep(1000);
-            }
-        }
-        catch(Exception e)
-        {
-            
-        }
-        */
-        
-        
-
-        
-        
         api = new Socket("10.42.72.25",8082);
         OutputStreamWriter osw = new OutputStreamWriter(api.getOutputStream(),StandardCharsets.UTF_8);
         InputStreamReader isr = new InputStreamReader(api.getInputStream(), StandardCharsets.UTF_8);
